@@ -7,21 +7,37 @@
 ## 🧰 Tech Stack
 
 ### 🖥 Frontend
-- React + TypeScript
-- Tailwind CSS
+- [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) for styling
 - Axios for HTTP requests
-- React Router DOM
-- React Hook Form or Formik
+- React Router for navigation
+- React Hook Form or Formik for forms
 
 ### ⚙️ Backend
-- Node.js + Express.js
-- PostgreSQL
-- Knex.js (or Sequelize)
-- Axios (for Unsplash API)
-- JWT (optional)
-- bcrypt
+- [Node.js](https://nodejs.org/) + [Express.js](https://expressjs.com/)
+- [PostgreSQL](https://www.postgresql.org/) for data persistence
+- Knex.js (or Sequelize) for database queries
+- Axios for Unsplash API calls
+- JWT for authentication (optional)
+- bcrypt for password hashing
 
 ---
 
 ## 📁 Folder Structure
 
+```bash
+the-interactive-gallery/
+│
+├── frontend/           # React + TypeScript app
+│   ├── public/
+│   ├── src/
+│   └── ...
+│
+├── backend/            # Node.js + Express.js API
+│   ├── src/
+│   ├── migrations/
+│   └── ...
+│
+├── .gitignore
+├── README.md
+└── ...
