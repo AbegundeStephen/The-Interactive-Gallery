@@ -16,7 +16,7 @@
 ### ⚙️ Backend
 - [Node.js](https://nodejs.org/) + [Express.js](https://expressjs.com/)
 - [PostgreSQL](https://www.postgresql.org/) for data persistence
-- Knex.js (or Sequelize) for database queries
+- Knex.js for database queries
 - Axios for Unsplash API calls
 - JWT for authentication (optional)
 - bcrypt for password hashing
