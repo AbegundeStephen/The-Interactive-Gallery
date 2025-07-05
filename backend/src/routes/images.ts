@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { ImageController } from '@/controller/imageController';
-import { CommentController } from '@/controller/commentController';
-import { LikeController } from '@/controller/likesController';
-import { validateComment } from '@/middleware/validation';
-import { optionalAuth } from '@/middleware/auth';
+import { ImageController } from '../controller/imageController';
+import { CommentController } from '../controller/commentController';
+import { LikeController } from '../controller/likesController';
+import { validateComment } from '../middleware/validation';
+import { optionalAuth } from '../middleware/auth';
 
 const router = Router();
 const imageController = new ImageController();

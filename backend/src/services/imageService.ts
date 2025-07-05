@@ -1,7 +1,7 @@
 import { db } from '../config/database';
 import { UnsplashService } from './unsplashService';
 import { Image, UnsplashImage } from '../types';
-
+import logger from '../config/logger';
 export class ImageService {
     private unsplashService: UnsplashService;
 
@@ -29,7 +29,7 @@ export class ImageService {
             await this.cacheImages(imagesToCache);
             return imagesToCache;
         } catch (error) {
-            console.error('Error getting images:', error);
+            logger.error('Error getting images:', error);
             throw error;
         }
     }
@@ -49,7 +49,7 @@ export class ImageService {
             await this.cacheImages([transformedImage]);
             return transformedImage;
         } catch (error) {
-            console.error('Error getting image by ID:', error);
+            logger.error('Error getting image by ID:', error);
             throw error;
         }
     }
@@ -59,7 +59,7 @@ export class ImageService {
             const unsplashImages = await this.unsplashService.searchImages(query, page, limit);
             return unsplashImages.map(this.transformUnsplashImage);
         } catch (error) {
-            console.error('Error searching images:', error);
+            logger.error('Error searching images:', error);
             throw error;
         }
     }
@@ -68,13 +68,13 @@ export class ImageService {
         return {
             id: unsplashImage.id,
             title: unsplashImage.description || unsplashImage.alt_description || 'Untitled',
-            description: unsplashImage.description,
+            description: unsplashImage.description ?? null,
             author: unsplashImage.user.name,
             author_username: unsplashImage.user.username,
             url_regular: unsplashImage.urls.regular,
             url_thumb: unsplashImage.urls.thumb,
             url_full: unsplashImage.urls.full,
-            tags: unsplashImage.tags?.map(tag => tag.title) || [],
+            tags: [], // 'tags' property does not exist on UnsplashImage, so return an empty array or handle accordingly
             likes_count: unsplashImage.likes,
             created_at: new Date(unsplashImage.created_at),
             updated_at: new Date()
@@ -90,7 +90,7 @@ export class ImageService {
                 await db('images').insert(newImages);
             }
         } catch (error) {
-            console.error('Error caching images:', error);
+            logger.error('Error caching images:', error);
         }
     }
 }

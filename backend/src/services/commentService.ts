@@ -1,6 +1,6 @@
-import db from '@/config/database';
-import { Comment } from '@/types';
-import logger from '@/config/logger';
+import {db} from '../config/database';
+import { Comment } from '../types';
+import logger from '../config/logger';
 
 class CommentService {
     async createComment(imageId: string, userId: number, content: string): Promise<Comment> {

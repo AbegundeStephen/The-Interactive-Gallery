@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from '../config/database';
+import logger from '../config/logger';
 
 export class AuthController {
     signup = async (req: Request, res: Response): Promise<void> => {
@@ -41,7 +42,7 @@ export class AuthController {
                 token
             });
         } catch (error) {
-            console.error('Error in signup:', error);
+            logger.error('Error in signup:', error);
             res.status(500).json({ error: 'Failed to create user' });
         }
     };
@@ -81,7 +82,7 @@ export class AuthController {
                 token
             });
         } catch (error) {
-            console.error('Error in login:', error);
+            logger.error('Error in login:', error);
             res.status(500).json({ error: 'Failed to login' });
         }
     };

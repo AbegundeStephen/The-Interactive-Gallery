@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
-
+import logger from '../config/logger';
 export class LikeController {
     likeImage = async (req: AuthRequest, res: Response): Promise<void> => {
         try {
@@ -30,7 +30,7 @@ export class LikeController {
 
             res.status(201).json(like[0]);
         } catch (error) {
-            console.error('Error liking image:', error);
+            logger.error('Error liking image:', error);
             res.status(500).json({ error: 'Failed to like image' });
         }
     };
@@ -49,7 +49,7 @@ export class LikeController {
                 likes: parseInt(likesCount?.count as string) || 0
             });
         } catch (error) {
-            console.error('Error fetching likes:', error);
+            logger.error('Error fetching likes:', error);
             res.status(500).json({ error: 'Failed to fetch likes' });
         }
     };

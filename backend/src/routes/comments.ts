@@ -1,11 +1,14 @@
 // src/routes/comments.ts
 import express, { Response } from 'express';
 import Joi from 'joi';
-import db from '../config/database';
+import { db } from '../config/database';
 import { authenticateToken, optionalAuth, AuthRequest } from '../middleware/auth';
+import { UnsplashService } from '../services/unsplashService';
 import { Comment } from '../types';
+import logger from '../config/logger';
 
 const router = express.Router();
+const unsplashService = new UnsplashService()
 
 // Validation schemas
 const createCommentSchema = Joi.object({
@@ -60,7 +63,7 @@ router.post('/:imageId', authenticateToken, async (req: AuthRequest, res: Respon
 
         res.status(201).json(commentWithUser);
     } catch (error) {
-        console.error('Create comment error:', error);
+        logger.error('Create comment error:', error);
         res.status(500).json({ error: 'Failed to create comment' });
     }
 });
@@ -103,7 +106,7 @@ router.get('/:imageId', optionalAuth, async (req: AuthRequest, res: Response): P
             }
         });
     } catch (error) {
-        console.error('Get comments error:', error);
+        logger.error('Get comments error:', error);
         res.status(500).json({ error: 'Failed to fetch comments' });
     }
 });

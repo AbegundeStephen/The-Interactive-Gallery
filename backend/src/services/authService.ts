@@ -1,16 +1,16 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import db from '@/config/database';
-import { User } from '@/types';
-import logger from '@/config/logger';
+import { db } from '../config/database';
+import { User } from '../types';
+import logger from '../config/logger';
 
 class AuthService {
-    private jwtSecret: string;
+    private jwtSecret: jwt.Secret;
     private jwtExpiresIn: string | number;
 
     constructor() {
-        this.jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
-        this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '7d';
+        this.jwtSecret = (process.env.JWT_SECRET || 'your-secret-key') as string;
+        this.jwtExpiresIn = process.env.JWT_EXPIRES_IN ? String(process.env.JWT_EXPIRES_IN) : '7d';
     }
 
     async hashPassword(password: string): Promise<string> {
@@ -22,8 +22,9 @@ class AuthService {
     }
 
     generateToken(payload: { id: number; email: string; username: string }): string {
-        return jwt.sign(payload, this.jwtSecret, { expiresIn: this.jwtExpiresIn });
+        return jwt.sign(payload, this.jwtSecret, { expiresIn: "7d" });
     }
+
 
     verifyToken(token: string): any {
         try {

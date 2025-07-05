@@ -1,5 +1,7 @@
 export interface UnsplashImage {
     id: string;
+    description?: string;
+    alt_description?: string;
     urls: {
         raw: string;
         full: string;
@@ -11,12 +13,18 @@ export interface UnsplashImage {
         id: string;
         name: string;
         username: string;
+        profile_image: {
+            small: string;
+            medium: string;
+            large: string;
+        };
     };
-    description: string | null;
-    alt_description: string | null;
-    tags?: Array<{ title: string }>;
+    width: number;
+    height: number;
+    color?: string;
     likes: number;
     created_at: string;
+    updated_at: string;
 }
 
 export interface Image {

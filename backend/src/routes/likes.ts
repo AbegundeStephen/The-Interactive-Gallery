@@ -47,7 +47,7 @@ router.post('/:imageId', authenticateToken, async (req: AuthRequest, res: Respon
             res.json({ liked: true, message: 'Image liked' });
         }
     } catch (error) {
-        console.error('Toggle like error:', error);
+        logger.error('Toggle like error:', error);
         res.status(500).json({ error: 'Failed to toggle like' });
     }
 });
@@ -66,7 +66,7 @@ router.get('/:imageId', async (req: AuthRequest, res: Response): Promise<void> =
 
         res.json({ likes: count });
     } catch (error) {
-        console.error('Get likes error:', error);
+        logger.error('Get likes error:', error);
         res.status(500).json({ error: 'Failed to fetch likes' });
     }
 });

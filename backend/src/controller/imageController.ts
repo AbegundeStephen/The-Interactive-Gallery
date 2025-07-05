@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ImageService } from '../services/imageService';
+import logger from '../config/logger';
 
 export class ImageController {
     private imageService: ImageService;
@@ -30,7 +31,7 @@ export class ImageController {
                 }
             });
         } catch (error) {
-            console.error('Error in getImages:', error);
+            logger.error('Error in getImages:', error);
             res.status(500).json({ error: 'Failed to fetch images' });
         }
     };
@@ -41,7 +42,7 @@ export class ImageController {
             const image = await this.imageService.getImageById(id);
             res.json(image);
         } catch (error) {
-            console.error('Error in getImageById:', error);
+            logger.error('Error in getImageById:', error);
             res.status(404).json({ error: 'Image not found' });
         }
     };

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
-
+import logger from '../config/logger';
 export class CommentController {
     createComment = async (req: AuthRequest, res: Response): Promise<void> => {
         try {
@@ -18,7 +18,7 @@ export class CommentController {
 
             res.status(201).json(comment[0]);
         } catch (error) {
-            console.error('Error creating comment:', error);
+            logger.error('Error creating comment:', error);
             res.status(500).json({ error: 'Failed to create comment' });
         }
     };
@@ -50,7 +50,7 @@ export class CommentController {
                 }
             });
         } catch (error) {
-            console.error('Error fetching comments:', error);
+            logger.error('Error fetching comments:', error);
             res.status(500).json({ error: 'Failed to fetch comments' });
         }
     };

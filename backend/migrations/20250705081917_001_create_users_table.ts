@@ -1,8 +1,11 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
+    // Ensure the uuid-ossp extension is available in PostgreSQL
+    await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+
     return knex.schema.createTable('users', (table) => {
-        table.increments('id').primary();
+        table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
         table.string('username').notNullable().unique();
         table.string('email').notNullable().unique();
         table.string('password_hash').notNullable();

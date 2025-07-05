@@ -1,6 +1,6 @@
-import db from '@/config/database';
-import { Like } from '@/types';
-import logger from '@/config/logger';
+import { db } from '../config/database';
+import { Like } from '../types';
+import logger from '../config/logger';
 
 class LikeService {
     async toggleLike(imageId: string, userId: number): Promise<{ liked: boolean, totalLikes: number }> {

@@ -3,9 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-
-import imageRoutes from '@/routes/images';
-import authRoutes from '@/routes/auth';
+import { generalRateLimit } from './middleware/rateLimiter';
+import { errorHandler } from './middleware/errorHandler';
+import imageRoutes from './routes/images';
+import authRoutes from './routes/auth';
+import logger from './config/logger';
 
 dotenv.config();
 
@@ -19,13 +21,8 @@ app.use(cors({
     credentials: true
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.'
-});
-app.use(limiter);
+
+app.use(generalRateLimit);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -49,16 +46,11 @@ app.use('*', (req, res) => {
 });
 
 // Global error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Global error handler:', err);
-    res.status(500).json({
-        error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
-    });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Environment: ${process.env.NODE_ENV}`);
+    logger.info(`🚀 Server running on port ${PORT}`);
+    logger.info(`📱 Environment: ${process.env.NODE_ENV}`);
 });
 
 export default app;

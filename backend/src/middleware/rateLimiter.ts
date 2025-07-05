@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
-import logger from '@/config/logger';
+import logger from '../config/logger';
 
 // General API rate limiter
 const rateLimiter = new RateLimiterMemory({
