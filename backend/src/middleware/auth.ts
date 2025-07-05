@@ -1,7 +1,7 @@
 // src/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import db from '../config/database';
+import {db} from '../config/database';
 import { User } from '../types';
 
 export interface AuthRequest extends Request {

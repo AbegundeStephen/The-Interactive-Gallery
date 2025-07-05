@@ -12,12 +12,13 @@ if (!databaseUrl) {
     throw new Error('DATABASE_URL environment variable is not set');
 }
 
+console.log("database url...", databaseUrl)
 export const knexConfig: KnexConfig = {
     development: {
         client: 'postgresql',
         connection: databaseUrl,
         migrations: {
-            directory: '../src/migrations/'
+            directory: './migrations'
         },
         seeds: {
             directory: './seeds'
@@ -27,7 +28,7 @@ export const knexConfig: KnexConfig = {
         client: 'postgresql',
         connection: databaseUrl,
         migrations: {
-            directory: '../src/migrations'
+            directory: './migrations'
         },
         pool: {
             min: 2,

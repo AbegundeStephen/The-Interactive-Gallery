@@ -1,20 +1,25 @@
-// src/routes/images.ts
-import express, { Request, Response } from 'express';
-import Joi from 'joi';
-import db from '../config/database';
-import unsplashService from '../services/unsplashService';
-import { optionalAuth, AuthRequest } from '../middleware/auth';
-import { Image } from '../types';
+import { Router } from 'express';
+import { ImageController } from '@/controller/imageController';
+import { CommentController } from '@/controller/commentController';
+import { LikeController } from '@/controller/likesController';
+import { validateComment } from '@/middleware/validation';
+import { optionalAuth } from '@/middleware/auth';
 
-const router = express.Router();
+const router = Router();
+const imageController = new ImageController();
+const commentController = new CommentController();
+const likeController = new LikeController();
 
-// Validation schemas
-const getImagesSchema = Joi.object({
-    page: Joi.number().integer().min(1).default(1),
-    limit: Joi.number().integer().min(1).max(50).default(20),
-    query: Joi.string().max(100)
-});
+// Image routes
+router.get('/', imageController.getImages);
+router.get('/:id', imageController.getImageById);
 
-const imageIdSchema = Joi.object({
-    id: Joi.string().required()
-});
+// Comment routes
+router.post('/:id/comments', optionalAuth, validateComment, commentController.createComment);
+router.get('/:id/comments', commentController.getComments);
+
+// Like routes
+router.post('/:id/like', optionalAuth, likeController.likeImage);
+router.get('/:id/likes', likeController.getLikes);
+
+export default router;
