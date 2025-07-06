@@ -23,7 +23,7 @@ export class ImageController {
             }
 
             res.json({
-                data: images,
+                images: images,
                 pagination: {
                     page,
                     limit,

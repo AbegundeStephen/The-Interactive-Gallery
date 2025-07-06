@@ -1,4 +1,5 @@
 import winston from 'winston';
+import expressWinston from "express-winston";
 
 const logger = winston.createLogger({
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
@@ -23,4 +24,20 @@ if (process.env.NODE_ENV !== 'production') {
     }));
 }
 
+// Request logger middleware
+const requestLogger = expressWinston.logger({
+    winstonInstance: logger,
+    meta: true,
+    msg: "HTTP {{req.method}} {{req.url}}",
+    expressFormat: true,
+    colorize: process.env.NODE_ENV !== 'production',
+    ignoreRoute: function (req, res) {
+        // Optional: ignore health check routes
+        return req.url === '/health' || req.url === '/ping';
+    },
+    requestWhitelist: ['url', 'method', 'httpVersion', 'originalUrl', 'query'],
+    responseWhitelist: ['statusCode', 'responseTime']
+});
+
 export default logger;
+export { requestLogger };

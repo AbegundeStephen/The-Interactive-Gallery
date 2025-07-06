@@ -1,12 +1,42 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import axios from 'axios';
+import type { AxiosInstance } from "axios"
 import type { Image, Comment, User } from "../types";
+import { API_CONFIG, isDevelopment } from '../config';
 
 class ApiService {
-    private baseUrl = '/api';
+    private api: AxiosInstance;
     private token: string | null = null;
+
 
     constructor() {
         this.token = localStorage.getItem('auth_token');
+
+        // Create axios instance with base configuration
+        this.api = axios.create({
+            baseURL: API_CONFIG.baseURL,
+            timeout: API_CONFIG.timeout,
+            headers: API_CONFIG.defaultHeaders,
+        });
+
+        // Add request interceptor to include auth token
+        this.api.interceptors.request.use((config) => {
+            if (this.token) {
+                config.headers.Authorization = `Bearer ${this.token}`;
+            }
+            return config;
+        });
+
+        // Add response interceptor for error handling
+        this.api.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 401) {
+                    this.logout();
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     private getHeaders() {
@@ -16,7 +46,7 @@ class ApiService {
         };
     }
 
-    // Mock data generators
+    // Mock data generators (for development)
     private generateMockImages(count: number, page: number = 1): Image[] {
         return Array.from({ length: count }, (_, i) => {
             const imageId = `img_${page}_${i + 1}`;
@@ -57,80 +87,192 @@ class ApiService {
     }
 
     async getImages(page: number = 1, limit: number = 12, query?: string): Promise<{ images: Image[]; total: number; page: number; totalPages: number }> {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
 
-        const images = this.generateMockImages(limit, page);
-        const total = 120; // Mock total
+        if (isDevelopment) {
+            // Use mock data in development
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const images = this.generateMockImages(limit, page);
+            const total = 120; // Mock total
 
-        return {
-            images,
-            total,
-            page,
-            totalPages: Math.ceil(total / limit)
-        };
+            return {
+                images,
+                total,
+                page,
+                totalPages: Math.ceil(total / limit)
+            };
+        }
+
+        // Production API call
+        try {
+            const params: any = { page, limit };
+            if (query) {
+                params.q = query;
+            }
+
+            const response = await this.api.get('/api/images',);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching images:', error);
+            throw error;
+        }
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     async getImage(id: string): Promise<Image> {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return this.generateMockImages(1, 1)[0];
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            return this.generateMockImages(1, 1)[0];
+        }
+
+        try {
+            const response = await this.api.get(`/api/images/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching image:', error);
+            throw error;
+        }
     }
 
     async getComments(imageId: string): Promise<Comment[]> {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return this.generateMockComments(imageId);
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return this.generateMockComments(imageId);
+        }
+
+        try {
+            const response = await this.api.get(`/api/images/${imageId}/comments`);
+            return Array.isArray(response.data) ? response.data : [];
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+            throw error;
+        }
     }
 
     async addComment(imageId: string, content: string, authorName: string, authorEmail: string): Promise<Comment> {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return {
-            id: `comment_${imageId}_${Date.now()}`,
-            image_id: imageId,
-            content,
-            author_name: authorName,
-            author_email: authorEmail,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            return {
+                id: `comment_${imageId}_${Date.now()}`,
+                image_id: imageId,
+                content,
+                author_name: authorName,
+                author_email: authorEmail,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+        }
+
+        try {
+            const response = await this.api.post(`/api/images/${imageId}/comments`, {
+                content,
+                author_name: authorName,
+                author_email: authorEmail
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            throw error;
+        }
     }
 
     async likeImage(imageId: string): Promise<{ likes_count: number }> {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        return { likes_count: Math.floor(Math.random() * 1000) + 1 };
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return { likes_count: Math.floor(Math.random() * 1000) + 1 };
+        }
+
+        try {
+            const response = await this.api.post(`/api/images/${imageId}/like`);
+            return response.data;
+        } catch (error) {
+            console.error('Error liking image:', error);
+            throw error;
+        }
+    }
+
+    async getLikesCount(imageId: string): Promise<{ likes_count: number }> {
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return { likes_count: Math.floor(Math.random() * 1000) + 50 };
+        }
+
+        try {
+            const response = await this.api.get(`/api/images/${imageId}/likes`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching likes count:', error);
+            throw error;
+        }
     }
 
     async login(email: string, password: string): Promise<{ user: User; token: string }> {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-        const user = {
-            id: 'user_123',
-            username: 'johndoe',
-            email: email,
-            created_at: new Date().toISOString()
-        };
+            const user = {
+                id: 'user_123',
+                username: 'johndoe',
+                email: email,
+                created_at: new Date().toISOString()
+            };
 
-        const token = 'mock_jwt_token_' + Date.now();
-        this.token = token;
-        localStorage.setItem('auth_token', token);
+            const token = 'mock_jwt_token_' + Date.now();
+            this.token = token;
+            localStorage.setItem('auth_token', token);
 
-        return { user, token };
+            return { user, token };
+        }
+
+        try {
+            const response = await this.api.post('/api/auth/login', {
+                email,
+                password
+            });
+
+            const { user, token } = response.data;
+            this.token = token;
+            localStorage.setItem('auth_token', token);
+
+            return { user, token };
+        } catch (error) {
+            console.error('Error logging in:', error);
+            throw error;
+        }
     }
 
     async register(username: string, email: string, password: string): Promise<{ user: User; token: string }> {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const user = {
-            id: 'user_' + Date.now(),
-            username,
-            email,
-            created_at: new Date().toISOString()
-        };
+            const user = {
+                id: 'user_' + Date.now(),
+                username,
+                email,
+                created_at: new Date().toISOString()
+            };
 
-        const token = 'mock_jwt_token_' + Date.now();
-        this.token = token;
-        localStorage.setItem('auth_token', token);
+            const token = 'mock_jwt_token_' + Date.now();
+            this.token = token;
+            localStorage.setItem('auth_token', token);
 
-        return { user, token };
+            return { user, token };
+        }
+
+        try {
+            const response = await this.api.post('/api/auth/signup', {
+                username,
+                email,
+                password
+            });
+
+            const { user, token } = response.data;
+            this.token = token;
+            localStorage.setItem('auth_token', token);
+
+            return { user, token };
+        } catch (error) {
+            console.error('Error registering:', error);
+            throw error;
+        }
     }
 
     logout() {
@@ -138,5 +280,5 @@ class ApiService {
         localStorage.removeItem('auth_token');
     }
 }
-  
-export default ApiService
+
+export default ApiService;

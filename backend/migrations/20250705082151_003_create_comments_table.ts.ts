@@ -1,12 +1,11 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-    // Enable uuid-ossp extension if needed
     await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 
     return knex.schema.createTable('comments', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
-        table.uuid('image_id').notNullable();
+        table.string('image_id').notNullable();
         table.uuid('user_id').nullable(); // user_id should be UUID now
         table.text('content').notNullable();
         table.string('author_name').notNullable();

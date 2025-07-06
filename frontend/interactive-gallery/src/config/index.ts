@@ -1,9 +1,9 @@
 import type { AppConfig } from "../types";
 
 const config: AppConfig = {
-    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001',
-    unsplashAccessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY || '',
-    environment: (process.env.REACT_APP_ENVIRONMENT as 'development' | 'production' | 'test') || 'development',
+    apiUrl: import.meta.env.VITE_APP_API_URL || 'http://localhost:3000',
+    unsplashAccessKey: import.meta.env.VITE_APP_UNSPLASH_ACCESS_KEY || '',
+    environment: (import.meta.env.VITE_APP_ENVIRONMENT as 'development' | 'production' | 'test') || 'development',
 };
 
 export default config;
@@ -11,11 +11,11 @@ export default config;
 
 // Validation
 if (!config.apiUrl) {
-    throw new Error('REACT_APP_API_URL environment variable is required');
+    throw new Error('VITE_APP_API_URL environment variable is required');
 }
 
 if (!config.unsplashAccessKey && config.environment === 'production') {
-    console.warn('REACT_APP_UNSPLASH_ACCESS_KEY is not set. Using mock data.');
+    console.warn('VITE_APP_UNSPLASH_ACCESS_KEY is not set. Using mock data.');
 }
 
 export const isDevelopment = config.environment === 'development';
@@ -137,4 +137,4 @@ export const THEME_CONFIG = {
             text: '#f9fafb',
         },
     },
-  };
+};
