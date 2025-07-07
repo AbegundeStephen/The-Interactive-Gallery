@@ -33,7 +33,7 @@ const requestLogger = expressWinston.logger({
     colorize: process.env.NODE_ENV !== 'production',
     ignoreRoute: function (req, res) {
         // Optional: ignore health check routes
-        return req.url === '/health' || req.url === '/ping';
+        return req.url === '/api/health' || req.url === '/ping';
     },
     requestWhitelist: ['url', 'method', 'httpVersion', 'originalUrl', 'query'],
     responseWhitelist: ['statusCode', 'responseTime']

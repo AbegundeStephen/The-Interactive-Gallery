@@ -14,9 +14,9 @@ interface JwtPayload {
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers['authorization'];
-    console.log("auth",authHeader)
+    console.log("auth", authHeader)
     const token = authHeader && authHeader.split(' ')[1];
-    console.log("token",token)
+    console.log("token", token)
 
     if (!token) {
         res.status(401).json({ error: 'Access token required' });
@@ -39,18 +39,3 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     }
 };
 
-export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token) {
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-            const user = await db('users').where('id', decoded.userId).first() as User;
-            req.user = user;
-        } catch (error) {
-            // Invalid token, but continue without auth
-        }
-    }
-    next();
-};

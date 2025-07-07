@@ -4,10 +4,10 @@ FROM node:18-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available)
+# Copy package.json and package-lock.json 
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies for building)
+# Install all dependencies (i am including devDependencies for building)
 RUN npm ci
 
 # Copy the rest of the application code
