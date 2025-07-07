@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { db } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
 import logger from '../config/logger';
+
+
 export class LikeController {
     likeImage = async (req: AuthRequest, res: Response): Promise<void> => {
         try {

@@ -21,14 +21,20 @@ import likesRoutes from './routes/likes';
 const app = express();
 const PORT = parseInt(process.env.PORT || '8080', 10);
 
+const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:5173']; // fallback to localhost if CORS_ORIGINS is not set
+
 // Trust proxy (for rate limiting, IP logging, etc.)
 app.set('trust proxy', 1);
 
 // Middleware
 app.use(requestLogger);
 app.use(helmet());
+
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: corsOrigins,
     credentials: true,
 }));
 app.use(generalRateLimit);
