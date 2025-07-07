@@ -155,7 +155,6 @@ the-interactive-gallery/
 │   │       └── server.js       # Compiled main server file
 │   └── package.json
 │
-├── .gitignore
 ├── README.md
 └── package.json
 ```
