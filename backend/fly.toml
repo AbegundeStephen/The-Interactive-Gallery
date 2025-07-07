@@ -3,7 +3,7 @@
 app = "the-interactive-gallery"
 primary_region = "lhr"  # London region, change if needed
 
-[build]
+# Build configuration is handled by Dockerfile
 
 [env]
   # Non-sensitive environment variables
@@ -42,8 +42,8 @@ primary_region = "lhr"  # London region, change if needed
   cpu_kind = "shared"
   cpus = 1
 
-[deploy]
-  release_command = "npm run build && npm run migrate"  # Build TypeScript and run migrations
+# [deploy]
+  # release_command = "npm run migrate"  # Uncomment after setting up database
 
 [processes]
   app = "npm start"  # Runs: node dist/server.js
