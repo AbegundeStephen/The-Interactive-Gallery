@@ -10,12 +10,12 @@ import authRoutes from './routes/auth';
 import commentRoutes from "./routes/comments"
 import likesRoutes from "./routes/likes"
 
-import logger, {requestLogger} from './config/logger';
+import logger, { requestLogger } from './config/logger';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(requestLogger)
 
@@ -55,7 +55,7 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 Server running on port ${PORT}`);
     logger.info(`📱 Environment: ${process.env.NODE_ENV}`);
 });
