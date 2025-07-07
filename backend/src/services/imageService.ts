@@ -9,7 +9,7 @@ export class ImageService {
         this.unsplashService = new UnsplashService();
     }
 
-    async getImages(page: number = 1, limit: number = 12): Promise<Image[]> {
+    async getImages(page: number = 1, limit: number = 14): Promise<Image[]> {
         try {
             // First try to get from cache
             const cachedImages = await db('images')

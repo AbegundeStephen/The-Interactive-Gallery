@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios';
-import type { AxiosInstance } from "axios"
+import type { AxiosInstance, AxiosError } from "axios"
 import type { Image, Comment, User } from "../types";
 import { API_CONFIG, isDevelopment } from '../config';
+import { toast } from 'sonner';
 
 class ApiService {
     private api: AxiosInstance;
@@ -19,7 +20,7 @@ class ApiService {
             headers: API_CONFIG.defaultHeaders,
         });
 
-        // Add request interceptor to include auth token
+        // A request interceptor to include auth token
         this.api.interceptors.request.use((config) => {
             if (this.token) {
                 config.headers.Authorization = `Bearer ${this.token}`;
@@ -39,11 +40,41 @@ class ApiService {
         );
     }
 
-    private getHeaders() {
-        return {
-            'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` })
-        };
+    // Error handling method
+    private handleApiError(error: unknown, defaultMessage: string = 'An error occurred'): string {
+        let errorMessage = defaultMessage;
+
+        if (axios.isAxiosError(error)) {
+            const axiosError = error as AxiosError;
+
+            // Extract error message from response data
+            if (axiosError.response?.data) {
+                const responseData = axiosError.response.data as any;
+
+                // Try different possible error message fields
+                if (responseData.error) {
+                    errorMessage = responseData.error;
+                } else if (responseData.message) {
+                    errorMessage = responseData.message;
+                } else if (responseData.details) {
+                    errorMessage = responseData.details;
+                } else if (typeof responseData === 'string') {
+                    errorMessage = responseData;
+                }
+            } else if (axiosError.message) {
+                // Fallback to axios error message
+                errorMessage = axiosError.message;
+            }
+        } else if (error instanceof Error) {
+            errorMessage = error.message;
+        } else if (typeof error === 'string') {
+            errorMessage = error;
+        }
+
+        // Display toast notification
+        toast.error(errorMessage);
+
+        return errorMessage;
     }
 
     // Mock data generators (for development)
@@ -112,7 +143,7 @@ class ApiService {
             const response = await this.api.get('/api/images',);
             return response.data;
         } catch (error) {
-            console.error('Error fetching images:', error);
+            this.handleApiError(error, 'Failed to fetch images');
             throw error;
         }
     }
@@ -127,7 +158,7 @@ class ApiService {
             const response = await this.api.get(`/api/images/${id}`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching image:', error);
+            this.handleApiError(error, 'Failed to fetch image');
             throw error;
         }
     }
@@ -139,10 +170,10 @@ class ApiService {
         }
 
         try {
-            const response = await this.api.get(`/api/images/${imageId}/comments`);
-            return Array.isArray(response.data) ? response.data : [];
+            const response = await this.api.get(`/api/comments/${imageId}`);
+            return Array.isArray(response.data.data) ? response.data.data : [];
         } catch (error) {
-            console.error('Error fetching comments:', error);
+            this.handleApiError(error, 'Failed to fetch comments');
             throw error;
         }
     }
@@ -162,14 +193,14 @@ class ApiService {
         }
 
         try {
-            const response = await this.api.post(`/api/images/${imageId}/comments`, {
+            const response = await this.api.post(`/api/comments/${imageId}`, {
                 content,
                 author_name: authorName,
                 author_email: authorEmail
             });
             return response.data;
         } catch (error) {
-            console.error('Error adding comment:', error);
+            this.handleApiError(error, 'Failed to add comment');
             throw error;
         }
     }
@@ -181,10 +212,10 @@ class ApiService {
         }
 
         try {
-            const response = await this.api.post(`/api/images/${imageId}/like`);
+            const response = await this.api.post(`/api/likes/${imageId}/like`);
             return response.data;
         } catch (error) {
-            console.error('Error liking image:', error);
+            this.handleApiError(error, 'Failed to like image');
             throw error;
         }
     }
@@ -196,10 +227,10 @@ class ApiService {
         }
 
         try {
-            const response = await this.api.get(`/api/images/${imageId}/likes`);
+            const response = await this.api.get(`/api/likes/${imageId}/likes`);
             return response.data;
         } catch (error) {
-            console.error('Error fetching likes count:', error);
+            this.handleApiError(error, 'Failed to fetch likes count');
             throw error;
         }
     }
@@ -234,7 +265,7 @@ class ApiService {
 
             return { user, token };
         } catch (error) {
-            console.error('Error logging in:', error);
+            this.handleApiError(error, 'Login failed');
             throw error;
         }
     }
@@ -270,7 +301,7 @@ class ApiService {
 
             return { user, token };
         } catch (error) {
-            console.error('Error registering:', error);
+            this.handleApiError(error, 'Registration failed');
             throw error;
         }
     }

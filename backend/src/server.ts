@@ -7,6 +7,9 @@ import { generalRateLimit } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
 import imageRoutes from './routes/images';
 import authRoutes from './routes/auth';
+import commentRoutes from "./routes/comments"
+import likesRoutes from "./routes/likes"
+
 import logger, {requestLogger} from './config/logger';
 
 dotenv.config();
@@ -36,6 +39,8 @@ app.set('trust proxy', 1);
 // Routes
 app.use('/api/images', imageRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/comments", commentRoutes)
+app.use("/api/likes", likesRoutes)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

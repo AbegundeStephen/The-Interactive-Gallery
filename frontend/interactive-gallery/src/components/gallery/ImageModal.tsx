@@ -4,7 +4,7 @@ import { User, Heart, X } from "lucide-react";
 import CommentForm from "../comments/CommentForm";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ApiService from "../../services/ApiService";
-
+import {toast} from 'sonner'
 
 const ImageModal: React.FC<{ 
     image: Image;
@@ -22,8 +22,8 @@ const ImageModal: React.FC<{
     useEffect(() => {
       const loadComments = async () => {
         try {
-          const commentsData = await apiService.getComments(image.id);
-          setComments(commentsData);
+        const commentsData = await apiService.getComments(image.id);
+        setComments(commentsData);
         } catch (error) {
           console.error('Failed to load comments:', error);
         } finally {
@@ -33,12 +33,28 @@ const ImageModal: React.FC<{
   
       loadComments();
     }, [image.id]);
-  
+
+    useEffect(() => {
+      const loadLikesCount = async () => {
+        try {
+          const likesCountData = await apiService.getLikesCount(image.id);
+          setLikesCount(likesCountData.likes_count);
+        } catch (error) {
+          console.error("Failed to load comments:", error);
+        } finally {
+          
+        }
+      };
+
+      loadLikesCount();
+    }, [image.id]);
+
     const handleAddComment = async (content: string, authorName: string, authorEmail: string) => {
       setAddingComment(true);
       try {
         const newComment = await apiService.addComment(image.id, content, authorName, authorEmail);
         setComments(prev => [newComment, ...prev]);
+        toast.info("comment added!")
       } catch (error) {
         console.error('Failed to add comment:', error);
       } finally {
@@ -49,8 +65,8 @@ const ImageModal: React.FC<{
     const handleLike = async () => {
       try {
         if (!liked) {
-          const response = await apiService.likeImage(image.id);
-          setLikesCount(response.likes_count);
+           await apiService.likeImage(image.id);
+          // setLikesCount(response.likes_count);
           setLiked(true);
         }
       } catch (error) {

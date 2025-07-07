@@ -1,7 +1,7 @@
 // src/middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import {db} from '../config/database';
+import { db } from '../config/database';
 import { User } from '../types';
 
 export interface AuthRequest extends Request {
@@ -14,7 +14,9 @@ interface JwtPayload {
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers['authorization'];
+    console.log("auth",authHeader)
     const token = authHeader && authHeader.split(' ')[1];
+    console.log("token",token)
 
     if (!token) {
         res.status(401).json({ error: 'Access token required' });

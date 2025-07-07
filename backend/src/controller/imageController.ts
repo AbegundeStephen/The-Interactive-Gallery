@@ -14,6 +14,7 @@ export class ImageController {
             const page = parseInt(req.query.page as string) || 1;
             const limit = parseInt(req.query.limit as string) || 12;
             const query = req.query.q as string;
+            const total = 120
 
             let images;
             if (query) {
@@ -27,7 +28,8 @@ export class ImageController {
                 pagination: {
                     page,
                     limit,
-                    hasMore: images.length === limit
+                    hasMore: images.length === limit,
+                    totalPages: Math.ceil(total / limit)
                 }
             });
         } catch (error) {

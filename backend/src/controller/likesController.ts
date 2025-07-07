@@ -13,7 +13,7 @@ export class LikeController {
             const existingLike = await db('likes')
                 .where('image_id', imageId)
                 .where(function () {
-                    this.where('user_id', userId).orWhere('ip_address', ipAddress);
+                    this.where('user_id', userId)
                 })
                 .first();
 
@@ -46,7 +46,7 @@ export class LikeController {
 
             res.json({
                 image_id: imageId,
-                likes: parseInt(likesCount?.count as string) || 0
+                likes_count: parseInt(likesCount?.count as string) || 0
             });
         } catch (error) {
             logger.error('Error fetching likes:', error);
