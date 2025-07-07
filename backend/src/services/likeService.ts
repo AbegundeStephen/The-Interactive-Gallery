@@ -3,24 +3,21 @@ import { Like } from '../types';
 import logger from '../config/logger';
 
 class LikeService {
-    async toggleLike(imageId: string, userId: number): Promise<{ liked: boolean, totalLikes: number }> {
+    async toggleLike(imageId: string, userId: string, ipAddress: string): Promise<{ liked: boolean, totalLikes: number }> {
         try {
             const existingLike = await db('likes')
-                .where('image_id', imageId)
-                .andWhere('user_id', userId)
+                .where({ image_id: imageId, user_id: userId, ip_address: ipAddress })
                 .first();
 
             if (existingLike) {
-                // Unlike
                 await db('likes')
-                    .where('image_id', imageId)
-                    .andWhere('user_id', userId)
+                    .where({ image_id: imageId, user_id: userId, ip_address: ipAddress })
                     .delete();
             } else {
-                // Like
                 await db('likes').insert({
                     image_id: imageId,
-                    user_id: userId
+                    user_id: userId,
+                    ip_address: ipAddress
                 });
             }
 
@@ -50,7 +47,7 @@ class LikeService {
         }
     }
 
-    async getUserLike(imageId: string, userId: number): Promise<Like | null> {
+    async getUserLike(imageId: string, userId: string): Promise<Like | null> {
         try {
             const like = await db('likes')
                 .where('image_id', imageId)
@@ -64,7 +61,7 @@ class LikeService {
         }
     }
 
-    async getLikedImagesByUser(userId: number, page: number = 1, limit: number = 20): Promise<{ images: any[], total: number }> {
+    async getLikedImagesByUser(userId: string, page: number = 1, limit: number = 20): Promise<{ images: any[], total: number }> {
         try {
             const offset = (page - 1) * limit;
 
@@ -123,13 +120,14 @@ class LikeService {
         }
     }
 
-    async getImageLikeStatus(imageId: string, userId?: number): Promise<{ liked: boolean, totalLikes: number }> {
+    async getImageLikeStatus(imageId: string, userId?: string): Promise<{ liked: boolean, totalLikes: number }> {
         try {
             const totalLikes = await this.getLikesCount(imageId);
             let liked = false;
-
+            console.log("userid...", userId)
             if (userId) {
                 const userLike = await this.getUserLike(imageId, userId);
+                console.log("user like...", userLike)
                 liked = !!userLike;
             }
 

@@ -14,10 +14,7 @@ interface JwtPayload {
 
 export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers['authorization'];
-    console.log("auth", authHeader)
     const token = authHeader && authHeader.split(' ')[1];
-    console.log("token", token)
-
     if (!token) {
         res.status(401).json({ error: 'Access token required' });
         return;

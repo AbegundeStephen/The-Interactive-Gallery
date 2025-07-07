@@ -35,17 +35,17 @@ const ImageModal: React.FC<{
   }, [image.id]);
 
   useEffect(() => {
-    const loadLikesCount = async () => {
+    const fetchLikeStatus = async () => {
       try {
-        const likesCountData = await apiService.getLikesCount(image.id);
-        setLikesCount(likesCountData.likes_count);
+        const status = await apiService.getLikeStatus(image.id);
+        setLiked(status.liked);
+        setLikesCount(status.totalLikes);
       } catch (error) {
-        console.error("Failed to load comments:", error);
-      } finally {
+        console.error("Failed to fetch like status:", error);
       }
     };
 
-    loadLikesCount();
+    fetchLikeStatus();
   }, [image.id]);
 
   const handleAddComment = async (
@@ -72,13 +72,11 @@ const ImageModal: React.FC<{
 
   const handleLike = async () => {
     try {
-      if (!liked) {
-        await apiService.likeImage(image.id);
-        // setLikesCount(response.likes_count);
-        setLiked(true);
-      }
+      const result = await apiService.toggleLike(image.id);
+      setLiked(result.liked);
+      setLikesCount(result.totalLikes);
     } catch (error) {
-      console.error("Failed to like image:", error);
+      console.error("Failed to toggle like:", error);
     }
   };
 

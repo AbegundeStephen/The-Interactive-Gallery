@@ -234,6 +234,41 @@ class ApiService {
             throw error;
         }
     }
+    async toggleLike(imageId: string): Promise<{ liked: boolean; totalLikes: number }> {
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            const liked = Math.random() > 0.5;
+            return {
+                liked,
+                totalLikes: Math.floor(Math.random() * 1000) + (liked ? 1 : 0)
+            };
+        }
+
+        try {
+            const response = await this.api.post(`/api/likes/${imageId}/toggle`);
+            return response.data;
+        } catch (error) {
+            this.handleApiError(error, 'Failed to toggle like');
+            throw error;
+        }
+    }
+    async getLikeStatus(imageId: string): Promise<{ liked: boolean; totalLikes: number }> {
+        if (isDevelopment) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return {
+                liked: Math.random() > 0.5,
+                totalLikes: Math.floor(Math.random() * 1000)
+            };
+        }
+
+        try {
+            const response = await this.api.get(`/api/likes/${imageId}/status`);
+            return response.data;
+        } catch (error) {
+            this.handleApiError(error, 'Failed to fetch like status');
+            throw error;
+        }
+    }
 
     async login(email: string, password: string): Promise<{ user: User; token: string }> {
         if (isDevelopment) {

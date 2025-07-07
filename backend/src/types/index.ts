@@ -63,7 +63,7 @@ export interface User {
 export interface Like {
     id: number;
     image_id: string;
-    user_id?: number;
+    user_id?: string;
     ip_address: string;
     created_at: Date;
   }
