@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { generalRateLimit } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
@@ -9,8 +8,6 @@ import imageRoutes from './routes/images';
 import authRoutes from './routes/auth';
 import commentRoutes from "./routes/comments"
 import likesRoutes from "./routes/likes"
-import * as Sentry from "@sentry/node"
-
 import logger, { requestLogger } from './config/logger';
 
 dotenv.config();
@@ -55,10 +52,7 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use(errorHandler);
-Sentry.init({
-    dsn: "https://90bd477436c6ab5ed43b21b93edb7882@o4509627687829504.ingest.us.sentry.io/4509627688091648",
-    sendDefaultPii: true,
-});
+
 
 
 app.listen(PORT, '0.0.0.0', () => {
