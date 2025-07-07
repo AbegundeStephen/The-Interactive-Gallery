@@ -16,7 +16,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(true);
     try {
       const response = await apiService.login(email, password);
-      console.log("user...", response)
+      console.log("user...", response);
       setUser(response.user);
     } catch (error) {
       console.error(error);
