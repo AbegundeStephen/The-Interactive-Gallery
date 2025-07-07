@@ -55,7 +55,7 @@
     "type-check": "tsc --noEmit",
     "build:analyze": "npm run build && npx bundle-analyzer build/static/js/*.js",
     "test:coverage": "npm test -- --coverage --watchAll=false",
-    "prepare": "husky install"
+    "prepare": "test -d .git && husky install || echo 'Skipping husky install (no .git)'"
   },
   "eslintConfig": {
     "extends": [
