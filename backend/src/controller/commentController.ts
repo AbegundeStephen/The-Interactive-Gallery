@@ -51,7 +51,7 @@ export class CommentController {
             });
         } catch (error) {
             logger.error('Error fetching comments:', error);
-            res.status(500).json({ error: 'Failed to fetch comments' });
+            res.status(500).json({ error: 'Failed to fetch comments', details: error });
         }
     };
 }
