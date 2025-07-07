@@ -49,8 +49,7 @@
 
 1. **Clone the repository**:
 ```bash
-git clone https://github.com/yourusername/interactive-gallery.git
-cd interactive-gallery
+git clone https://github.com/AbegundeStephen/The-Interactive-Gallery.git
 ```
 
 2. **Install dependencies**:
@@ -60,7 +59,7 @@ cd backend
 npm install
 
 # Install frontend dependencies
-cd ../frontend
+cd frontend/interactive-gallery
 npm install
 ```
 
@@ -69,15 +68,11 @@ npm install
 Create `.env` file in the backend directory:
 ```env
 # Server Configuration
-PORT=3000
+PORT=8080
 NODE_ENV=development  # or production
 
 # Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=your-password
-DB_NAME=interactive_gallery
+DATABASE_URL=your-postgress-serverless connection string
 
 # Authentication
 JWT_SECRET=your-secure-jwt-secret-key
@@ -86,7 +81,7 @@ JWT_SECRET=your-secure-jwt-secret-key
 UNSPLASH_ACCESS_KEY=your-unsplash-access-key
 
 # CORS Configuration
-FRONTEND_URL=http://localhost:3001
+FRONTEND_URL=http://localhost:5173
 ```
 
 4. **Database Setup**:
@@ -164,7 +159,7 @@ the-interactive-gallery/
 ## 🔌 API Documentation
 
 ### Base URL
-- Development: `http://localhost:3000/api`
+- Development: `http://localhost:8080/api`
 - Production: `https://the-interactive-gallery-3r7v.onrender.com/api`
 
 ### Authentication
