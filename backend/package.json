@@ -4,13 +4,16 @@
   "description": "RESTful API for The Interactive Gallery",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run sentry:sourcemaps",
     "start": "node dist/src/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "migrate": "knex migrate:latest",
-    "seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org abegunde-stephen --project the-interactive-gallery ./dist && sentry-cli sourcemaps upload --org abegunde-stephen --project the-interactive-gallery ./dist"
   },
   "dependencies": {
+    "@sentry/cli": "^2.46.0",
+    "@sentry/node": "^9.35.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",

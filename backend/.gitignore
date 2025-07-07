@@ -17,3 +17,5 @@ error.log
 dist/
 
 nginx.conf
+# Sentry Config File
+.sentryclirc

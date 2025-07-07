@@ -9,6 +9,7 @@ import imageRoutes from './routes/images';
 import authRoutes from './routes/auth';
 import commentRoutes from "./routes/comments"
 import likesRoutes from "./routes/likes"
+import * as Sentry from "@sentry/node"
 
 import logger, { requestLogger } from './config/logger';
 
@@ -54,6 +55,14 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use(errorHandler);
+Sentry.init({
+    dsn: "https://90bd477436c6ab5ed43b21b93edb7882@o4509627687829504.ingest.us.sentry.io/4509627688091648",
+
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+});
+
 
 app.listen(PORT, '0.0.0.0', () => {
     logger.info(`🚀 Server running on port ${PORT}`);
