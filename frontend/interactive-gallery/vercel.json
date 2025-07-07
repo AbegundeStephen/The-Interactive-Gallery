@@ -1,4 +1,3 @@
-
 {
     "rootDirectory": "frontend/interactive-gallery",
     "buildCommand": "npm run build",
