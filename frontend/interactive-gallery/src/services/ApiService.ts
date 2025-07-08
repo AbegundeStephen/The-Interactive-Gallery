@@ -72,7 +72,7 @@ class ApiService {
         }
 
         // Display toast notification
-        toast.error(errorMessage);
+        toast.info(errorMessage);
 
         return errorMessage;
     }
