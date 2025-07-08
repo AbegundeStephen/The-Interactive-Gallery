@@ -7,6 +7,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 
+// Knex DB
+import knex from 'knex';
+import knexConfig from '../knexfile';
+import { db } from './config/database';
+
 // Middleware
 import { generalRateLimit } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
@@ -23,20 +28,15 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 
 const corsOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:5173']; // fallback to localhost if CORS_ORIGINS is not set
+    : ['http://localhost:5173']; // fallback
 
-// Trust proxy (for rate limiting, IP logging, etc.)
+// Trust proxy
 app.set('trust proxy', 1);
 
 // Middleware
 app.use(requestLogger);
 app.use(helmet());
-
-
-app.use(cors({
-    origin: corsOrigins,
-    credentials: true,
-}));
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(generalRateLimit);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -52,7 +52,7 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// 404 handler
+// 404
 app.use('*', (req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
@@ -60,10 +60,34 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-    logger.info(`🚀 Server running on port ${PORT}`);
-    logger.info(`📱 Environment: ${process.env.NODE_ENV}`);
-});
+// Function to check DB connection
+async function verifyDatabaseConnection() {
+    try {
+       
+        await db.raw('SELECT 1+1 AS result');
+        logger.info('✅ Database connected successfully.');
+        return true;
+    } catch (error) {
+        logger.error('❌ Failed to connect to the database:', error);
+        return false;
+    }
+}
+
+// Start server only after DB is ready
+async function startServer() {
+    const isDbConnected = await verifyDatabaseConnection();
+
+    if (!isDbConnected) {
+        logger.error('🛑 Exiting due to DB connection failure.');
+        process.exit(1);
+    }
+
+    app.listen(PORT, '0.0.0.0', () => {
+        logger.info(`🚀 Server running on port ${PORT}`);
+        logger.info(`📱 Environment: ${process.env.NODE_ENV}`);
+    });
+}
+
+startServer();
 
 export default app;
