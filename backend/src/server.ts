@@ -6,10 +6,6 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-
-// Knex DB
-import knex from 'knex';
-import knexConfig from '../knexfile';
 import { db } from './config/database';
 
 // Middleware
@@ -63,7 +59,7 @@ app.use(errorHandler);
 // Function to check DB connection
 async function verifyDatabaseConnection() {
     try {
-       
+
         await db.raw('SELECT 1+1 AS result');
         logger.info('✅ Database connected successfully.');
         return true;
