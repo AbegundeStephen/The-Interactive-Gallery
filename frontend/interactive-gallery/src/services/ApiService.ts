@@ -5,10 +5,22 @@ import type { Image, Comment, User } from "../types";
 import { API_CONFIG, isDevelopment } from '../config';
 import { toast } from 'sonner';
 
+interface RetryConfig {
+    maxRetries: number;
+    baseDelay: number;
+    maxDelay: number;
+    backoffFactor: number;
+}
+
 class ApiService {
     private api: AxiosInstance;
     private token: string | null = null;
-
+    private retryConfig: RetryConfig = {
+        maxRetries: 3,
+        baseDelay: 1000, // Start with 1 second
+        maxDelay: 30000, // Max 30 seconds between retries
+        backoffFactor: 2
+    };
 
     constructor() {
         this.token = localStorage.getItem('auth_token');
@@ -16,7 +28,7 @@ class ApiService {
         // Create axios instance with base configuration
         this.api = axios.create({
             baseURL: API_CONFIG.baseURL,
-            timeout: API_CONFIG.timeout,
+            timeout: 120000, // Increased timeout to 2 minutes for sleeping instances
             headers: API_CONFIG.defaultHeaders,
         });
 
@@ -38,6 +50,82 @@ class ApiService {
                 return Promise.reject(error);
             }
         );
+    }
+
+    // Retry logic with exponential backoff
+    private async retryWithBackoff<T>(
+        fn: () => Promise<T>,
+        config: RetryConfig = this.retryConfig,
+        context: string = 'API call'
+    ): Promise<T> {
+        let lastError: any;
+
+        for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+            try {
+                if (attempt > 0) {
+                    const delay = Math.min(
+                        config.baseDelay * Math.pow(config.backoffFactor, attempt - 1),
+                        config.maxDelay
+                    );
+
+                    console.log(`${context} - Attempt ${attempt + 1}/${config.maxRetries + 1} after ${delay}ms delay`);
+                    toast.info(`Retrying request... (Attempt ${attempt + 1}/${config.maxRetries + 1})`);
+
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+
+                const result = await fn();
+
+                if (attempt > 0) {
+                    toast.success(`${context} succeeded after ${attempt + 1} attempts`);
+                }
+
+                return result;
+            } catch (error) {
+                lastError = error;
+
+                // Check if this is a retryable error
+                if (!this.isRetryableError(error)) {
+                    console.log(`${context} - Non-retryable error, not retrying:`, error);
+                    break;
+                }
+
+                if (attempt === config.maxRetries) {
+                    console.log(`${context} - Max retries (${config.maxRetries}) exceeded`);
+                    break;
+                }
+
+                console.log(`${context} - Attempt ${attempt + 1} failed:`, error);
+            }
+        }
+
+        throw lastError;
+    }
+
+    // Determine if an error is retryable
+    private isRetryableError(error: any): boolean {
+        // Don't retry on authentication errors
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            return false;
+        }
+
+        // Don't retry on client errors (4xx except 429)
+        if (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429) {
+            return false;
+        }
+
+        // Retry on:
+        // - Network errors (no response)
+        // - Timeout errors
+        // - 5xx server errors
+        // - 429 rate limit errors
+        // - Connection errors
+        return !error.response ||
+            error.code === 'ECONNABORTED' ||
+            error.code === 'ECONNRESET' ||
+            error.code === 'ENOTFOUND' ||
+            error.response?.status >= 500 ||
+            error.response?.status === 429;
     }
 
     // Error handling method
@@ -72,7 +160,7 @@ class ApiService {
         }
 
         // Display toast notification
-        toast.info(errorMessage);
+        toast.error(errorMessage);
 
         return errorMessage;
     }
@@ -118,7 +206,6 @@ class ApiService {
     }
 
     async getImages(page: number = 1, limit: number = 12, query?: string): Promise<{ images: Image[]; total: number; page: number; totalPages: number }> {
-
         if (isDevelopment) {
             // Use mock data in development
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -133,17 +220,30 @@ class ApiService {
             };
         }
 
-        // Production API call
-        try {
+        // Production API call with retry logic
+        const makeRequest = async () => {
             const params: any = { page, limit };
             if (query) {
                 params.q = query;
             }
 
-            const response = await this.api.get('/api/images',);
+            const response = await this.api.get('/api/images', { params });
             return response.data;
+        };
+
+        try {
+            // Show initial loading message for first attempt
+            if (page === 1) {
+                toast.info('Loading images... This may take a moment if the server is sleeping.');
+            }
+
+            return await this.retryWithBackoff(
+                makeRequest,
+                this.retryConfig,
+                `Loading images (page ${page})`
+            );
         } catch (error) {
-            this.handleApiError(error, 'Failed to fetch images');
+            this.handleApiError(error, 'Failed to fetch images after multiple attempts');
             throw error;
         }
     }
@@ -234,6 +334,7 @@ class ApiService {
             throw error;
         }
     }
+
     async toggleLike(imageId: string): Promise<{ liked: boolean; totalLikes: number }> {
         if (isDevelopment) {
             await new Promise(resolve => setTimeout(resolve, 200));
@@ -252,6 +353,7 @@ class ApiService {
             throw error;
         }
     }
+
     async getLikeStatus(imageId: string): Promise<{ liked: boolean; totalLikes: number }> {
         if (isDevelopment) {
             await new Promise(resolve => setTimeout(resolve, 200));
